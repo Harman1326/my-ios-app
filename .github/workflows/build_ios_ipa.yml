@@ -24,7 +24,7 @@ jobs:
       - name: Create Flutter project if needed
         run: |
           if [ ! -f pubspec.yaml ]; then
-            flutter create .
+            flutter create . --project-name my_ios_app
           fi
 
       - name: Get dependencies
