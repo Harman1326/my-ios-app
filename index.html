@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>DealNest | Best Deals</title>
+
+  <meta name="description" content="Discover trending products and amazing deals at DealNest.">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">DealNest</div>
+
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+
+    <nav id="navMenu">
+      <a href="#home">Home</a>
+      <a href="#deals">Deals</a>
+      <a href="#categories">Categories</a>
+    </nav>
+  </header>
+
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+
+    <div class="hero-content">
+      <span class="badge">🔥 Today's Deals</span>
+
+      <h1>Find the Best<br><span>Deals Online</span></h1>
+
+      <p>
+        Discover trending products, useful gadgets and amazing deals in one place.
+      </p>
+
+      <a href="#deals" class="hero-btn">
+        Explore Deals →
+      </a>
+    </div>
+
+  </section>
+
+
+  <!-- SEARCH -->
+  <section class="search-section">
+
+    <div class="search-box">
+      <span>🔎</span>
+
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search products..."
+        oninput="searchProducts()"
+      >
+    </div>
+
+  </section>
+
+
+  <!-- CATEGORIES -->
+  <section class="categories" id="categories">
+
+    <h2>Categories</h2>
+
+    <div class="category-list">
+
+      <button onclick="filterCategory('all')">
+        🛍️ All
+      </button>
+
+      <button onclick="filterCategory('electronics')">
+        📱 Electronics
+      </button>
+
+      <button onclick="filterCategory('fashion')">
+        👕 Fashion
+      </button>
+
+      <button onclick="filterCategory('home')">
+        🏠 Home
+      </button>
+
+      <button onclick="filterCategory('beauty')">
+        ✨ Beauty
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- PRODUCTS -->
+  <main class="products-section" id="deals">
+
+    <div class="section-heading">
+      <div>
+        <span class="small-title">DEALNEST PICKS</span>
+        <h2>Trending Products</h2>
+      </div>
+    </div>
+
+    <div id="productGrid" class="product-grid">
+      <!-- Products will load here -->
+    </div>
+
+    <div id="noProducts" class="no-products">
+      No products found.
+    </div>
+
+  </main>
+
+
+  <!-- FOOTER -->
+  <footer>
+
+    <div class="footer-logo">
+      DealNest
+    </div>
+
+    <p>
+      Find it. Love it. Buy it.
+    </p>
+
+    <p class="copyright">
+      © 2026 DealNest. All rights reserved.
+    </p>
+
+  </footer>
+
+
+  <script src="app.js"></script>
+
+</body>
+</html>
