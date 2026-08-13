@@ -1,356 +1,386 @@
-import SwiftUI
+import 'package:flutter/material.dart';
 
-@main
-struct LoveMatchApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-    }
+void main() {
+  runApp(const LoveMatchApp());
 }
 
-// MARK: - Main Screen
+class LoveMatchApp extends StatelessWidget {
+  const LoveMatchApp({super.key});
 
-struct ContentView: View {
-    @State private var boyName = ""
-    @State private var girlName = ""
-    @State private var result: Int?
-    @State private var showResult = false
-    
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                
-                LinearGradient(
-                    colors: [
-                        Color.pink.opacity(0.25),
-                        Color.purple.opacity(0.18),
-                        Color.white
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(spacing: 24) {
-                        
-                        // Header
-                        VStack(spacing: 8) {
-                            Text("❤️")
-                                .font(.system(size: 60))
-                            
-                            Text("LoveMatch")
-                                .font(.system(size: 38, weight: .bold))
-                            
-                            Text("Find your love compatibility")
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.top, 30)
-                        
-                        // Names
-                        VStack(spacing: 16) {
-                            
-                            VStack(alignment: .leading, spacing: 7) {
-                                Text("Boy's Name")
-                                    .font(.headline)
-                                
-                                TextField("Enter boy's name", text: $boyName)
-                                    .textInputAutocapitalization(.words)
-                                    .padding()
-                                    .background(.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 15))
-                                    .shadow(color: .black.opacity(0.06),
-                                            radius: 5)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 7) {
-                                Text("Girl's Name")
-                                    .font(.headline)
-                                
-                                TextField("Enter girl's name", text: $girlName)
-                                    .textInputAutocapitalization(.words)
-                                    .padding()
-                                    .background(.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 15))
-                                    .shadow(color: .black.opacity(0.06),
-                                            radius: 5)
-                            }
-                        }
-                        .padding(.horizontal)
-                        
-                        // Calculate Button
-                        Button {
-                            calculateLove()
-                        } label: {
-                            HStack {
-                                Text("Calculate")
-                                Text("❤️")
-                            }
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(
-                                LinearGradient(
-                                    colors: [.pink, .purple],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                        }
-                        .padding(.horizontal)
-                        .disabled(
-                            boyName.trimmingCharacters(in: .whitespaces).isEmpty ||
-                            girlName.trimmingCharacters(in: .whitespaces).isEmpty
-                        )
-                        .opacity(
-                            boyName.isEmpty || girlName.isEmpty ? 0.5 : 1
-                        )
-                        
-                        // Result
-                        if showResult, let result = result {
-                            resultCard(score: result)
-                                .transition(.scale.combined(with: .opacity))
-                        }
-                        
-                        Spacer(minLength: 30)
-                    }
-                }
-            }
-            .navigationBarHidden(true)
-        }
-    }
-    
-    // MARK: - Calculate
-    
-    func calculateLove() {
-        let score = LoveCalculator.calculate(
-            boy: boyName,
-            girl: girlName
-        )
-        
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-            result = score
-            showResult = true
-        }
-    }
-    
-    // MARK: - Result Card
-    
-    @ViewBuilder
-    func resultCard(score: Int) -> some View {
-        
-        VStack(spacing: 18) {
-            
-            Text("\(boyName) ❤️ \(girlName)")
-                .font(.title2.bold())
-                .multilineTextAlignment(.center)
-            
-            ZStack {
-                Circle()
-                    .stroke(
-                        Color.pink.opacity(0.15),
-                        lineWidth: 15
-                    )
-                    .frame(width: 170, height: 170)
-                
-                Circle()
-                    .trim(from: 0, to: CGFloat(score) / 100)
-                    .stroke(
-                        LinearGradient(
-                            colors: [.pink, .purple],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        ),
-                        style: StrokeStyle(
-                            lineWidth: 15,
-                            lineCap: .round
-                        )
-                    )
-                    .rotationEffect(.degrees(-90))
-                    .frame(width: 170, height: 170)
-                
-                VStack(spacing: 2) {
-                    Text("\(score)%")
-                        .font(.system(size: 42, weight: .bold))
-                    
-                    Text("Love Match")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            
-            Text(LoveCalculator.message(for: score))
-                .font(.headline)
-                .multilineTextAlignment(.center)
-            
-            HStack(spacing: 12) {
-                scoreBox(
-                    title: "Name Match",
-                    value: "\(LoveCalculator.nameMatch(boyName, girlName))%"
-                )
-                
-                scoreBox(
-                    title: "Chemistry",
-                    value: "\(LoveCalculator.chemistry(score))%"
-                )
-            }
-            
-            Text("💕 Just for fun. This result is based on name compatibility, not real relationship prediction.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-        }
-        .padding(24)
-        .frame(maxWidth: .infinity)
-        .background(.white.opacity(0.9))
-        .clipShape(RoundedRectangle(cornerRadius: 25))
-        .shadow(color: .black.opacity(0.08),
-                radius: 15,
-                y: 8)
-        .padding(.horizontal)
-    }
-    
-    // MARK: - Small Score Box
-    
-    func scoreBox(title: String, value: String) -> some View {
-        VStack(spacing: 5) {
-            Text(value)
-                .font(.title3.bold())
-                .foregroundStyle(.pink)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color.pink.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'LoveMatch',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.pink,
+        fontFamily: 'Arial',
+      ),
+      home: const HomePage(),
+    );
+  }
 }
 
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
-// MARK: - Love Calculator
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
 
-struct LoveCalculator {
-    
-    static func clean(_ name: String) -> String {
-        name
-            .lowercased()
-            .filter { $0.isLetter }
+class _HomePageState extends State<HomePage> {
+  final boyController = TextEditingController();
+  final girlController = TextEditingController();
+
+  int? loveScore;
+  int? nameMatch;
+  int? chemistry;
+
+  String message = '';
+
+  void calculateLove() {
+    final boy = boyController.text.trim().toLowerCase();
+    final girl = girlController.text.trim().toLowerCase();
+
+    if (boy.isEmpty || girl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter both names ❤️'),
+        ),
+      );
+      return;
     }
-    
-    static func calculate(boy: String, girl: String) -> Int {
-        
-        let first = clean(boy)
-        let second = clean(girl)
-        
-        guard !first.isEmpty && !second.isEmpty else {
-            return 0
-        }
-        
-        let firstLetters = Set(first)
-        let secondLetters = Set(second)
-        
-        // Common letters
-        let common = firstLetters.intersection(secondLetters).count
-        
-        let totalUnique = firstLetters.union(secondLetters).count
-        
-        let letterMatch =
-            Double(common) / Double(max(totalUnique, 1))
-        
-        // Name length similarity
-        let lengthDifference =
-            abs(first.count - second.count)
-        
-        let lengthScore =
-            max(
-                0.0,
-                1.0 - Double(lengthDifference) / 10.0
-            )
-        
-        // Character values
-        let firstValue = first.unicodeScalars.reduce(0) {
-            $0 + Int($1.value)
-        }
-        
-        let secondValue = second.unicodeScalars.reduce(0) {
-            $0 + Int($1.value)
-        }
-        
-        let combinedValue =
-            (firstValue * 3 + secondValue * 7)
-        
-        let variation =
-            combinedValue % 21
-        
-        // Final formula
-        let base =
-            (letterMatch * 70) +
-            (lengthScore * 30)
-        
-        var finalScore =
-            Int(base) + variation
-        
-        // Keep result between 1 and 100
-        finalScore = max(1, min(finalScore, 100))
-        
-        return finalScore
-    }
-    
-    static func nameMatch(
-        _ boy: String,
-        _ girl: String
-    ) -> Int {
-        
-        let first = clean(boy)
-        let second = clean(girl)
-        
-        let a = Set(first)
-        let b = Set(second)
-        
-        let common = a.intersection(b).count
-        let total = a.union(b).count
-        
-        guard total > 0 else {
-            return 0
-        }
-        
-        return min(
-            100,
-            Int((Double(common) / Double(total)) * 100)
-        )
-    }
-    
-    static func chemistry(_ score: Int) -> Int {
-        let variation = (score * 13 + 17) % 15
-        return min(100, max(1, score + variation - 7))
-    }
-    
-    static func message(for score: Int) -> String {
-        
-        switch score {
-        case 90...100:
-            return "🔥 Amazing connection! You two are a powerful match."
-            
-        case 80...89:
-            return "❤️ Very strong love compatibility!"
-            
-        case 70...79:
-            return "💕 You two have a beautiful connection."
-            
-        case 60...69:
-            return "✨ There is definitely some cute chemistry."
-            
-        case 40...59:
-            return "😊 Interesting chemistry between you two."
-            
-        default:
-            return "😄 Maybe love needs a little more time!"
-        }
-    }
+
+    final boyLetters = boy.runes.toSet();
+    final girlLetters = girl.runes.toSet();
+
+    final commonLetters =
+        boyLetters.intersection(girlLetters).length;
+
+    final allLetters =
+        boyLetters.union(girlLetters).length;
+
+    double letterScore = allLetters == 0
+        ? 0
+        : commonLetters / allLetters;
+
+    final lengthDifference =
+        (boy.length - girl.length).abs();
+
+    double lengthScore =
+        (1 - (lengthDifference / 10)).clamp(0.0, 1.0);
+
+    int boyValue = boy.runes.fold(
+      0,
+      (sum, letter) => sum + letter,
+    );
+
+    int girlValue = girl.runes.fold(
+      0,
+      (sum, letter) => sum + letter,
+    );
+
+    int variation =
+        ((boyValue * 3 + girlValue * 7) % 21);
+
+    int score =
+        ((letterScore * 70) +
+                (lengthScore * 30))
+            .toInt() +
+        variation;
+
+    score = score.clamp(1, 100);
+
+    int match = allLetters == 0
+        ? 0
+        : ((commonLetters / allLetters) * 100)
+            .toInt();
+
+    int chem =
+        (score + ((score * 13 + 17) % 15) - 7)
+            .clamp(1, 100);
+
+    setState(() {
+      loveScore = score;
+      nameMatch = match;
+      chemistry = chem;
+
+      if (score >= 90) {
+        message =
+            '🔥 Amazing connection! You two are a powerful match.';
+      } else if (score >= 80) {
+        message =
+            '❤️ Very strong love compatibility!';
+      } else if (score >= 70) {
+        message =
+            '💕 You two have a beautiful connection.';
+      } else if (score >= 60) {
+        message =
+            '✨ There is definitely some cute chemistry.';
+      } else if (score >= 40) {
+        message =
+            '😊 Interesting chemistry between you two.';
+      } else {
+        message =
+            '😄 Maybe love needs a little more time!';
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    boyController.dispose();
+    girlController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFFFE1EC),
+              Color(0xFFF1E5FF),
+              Colors.white,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                const SizedBox(height: 25),
+
+                const Text(
+                  '❤️',
+                  style: TextStyle(fontSize: 65),
+                ),
+
+                const Text(
+                  'LoveMatch',
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                const Text(
+                  'Find your love compatibility',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black54,
+                  ),
+                ),
+
+                const SizedBox(height: 35),
+
+                nameField(
+                  controller: boyController,
+                  label: "Boy's Name",
+                  hint: "Enter boy's name",
+                ),
+
+                const SizedBox(height: 16),
+
+                nameField(
+                  controller: girlController,
+                  label: "Girl's Name",
+                  hint: "Enter girl's name",
+                ),
+
+                const SizedBox(height: 25),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    onPressed: calculateLove,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pink,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text(
+                      'Calculate ❤️',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                if (loveScore != null)
+                  resultCard(),
+
+                const SizedBox(height: 30),
+
+                const Text(
+                  '💕 Just for fun. This result is based on names and does not predict a real relationship.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget nameField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 7),
+        TextField(
+          controller: controller,
+          textCapitalization: TextCapitalization.words,
+          decoration: InputDecoration(
+            hintText: hint,
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget resultCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            '${boyController.text} ❤️ ${girlController.text}',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          Text(
+            '$loveScore%',
+            style: const TextStyle(
+              fontSize: 60,
+              fontWeight: FontWeight.bold,
+              color: Colors.pink,
+            ),
+          ),
+
+          const Text(
+            'Love Match',
+            style: TextStyle(
+              color: Colors.black54,
+            ),
+          ),
+
+          const SizedBox(height: 15),
+
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          Row(
+            children: [
+              scoreBox(
+                'Name Match',
+                '$nameMatch%',
+              ),
+              const SizedBox(width: 12),
+              scoreBox(
+                'Chemistry',
+                '$chemistry%',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget scoreBox(String title, String value) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.pink.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.pink,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.black54,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
